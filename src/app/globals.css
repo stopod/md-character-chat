@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global styles for VTuber Chat App */
+@layer base {
+  html {
+    @apply h-full;
+  }
+  
+  body {
+    @apply h-full bg-gradient-to-br from-blue-50 to-indigo-100 font-sans antialiased;
+  }
+  
+  #__next {
+    @apply h-full;
+  }
+}
+
+/* Custom scrollbar */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-gray-100 rounded-full;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-full;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+  }
+  
+  /* オーバーレイスクロールバー */
+  .scrollbar-overlay {
+    overflow-y: overlay;
+  }
+  
+  .scrollbar-overlay::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+  
+  .scrollbar-overlay::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-overlay::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  
+  .scrollbar-overlay::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4);
+    background-clip: content-box;
+  }
+}
+
+/* Animation for chat messages */
+@layer components {
+  .chat-message-enter {
+    animation: slideInFromBottom 0.3s ease-out;
+  }
+  
+  .chat-typing {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Character selection hover effects */
+.character-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.character-card:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Button hover effects */
+.btn-primary {
+  @apply bg-blue-500 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200;
+}
+
+.btn-primary:hover {
+  @apply bg-blue-600 transform scale-105 shadow-lg;
+}
+
+.btn-primary:active {
+  @apply bg-blue-700 transform scale-95;
+}
+
+/* Loading spinner */
+.spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
