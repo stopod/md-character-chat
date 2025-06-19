@@ -3,17 +3,28 @@
 import { useState, useCallback } from 'react';
 import { ChatMessage, ChatRequest, ChatResponse } from '@/types/chat';
 import { VTuberCharacter } from '@/types/character';
+import { AppError, ERROR_CODES } from '@/types/error';
+import { ErrorFactory, logError, fetchWithTimeout, RetryUtils } from '@/lib/error-utils';
 
 export function useChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<AppError | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   const sendMessage = useCallback(async (
     content: string, 
     character: VTuberCharacter
   ): Promise<void> => {
-    if (!content.trim()) return;
+    if (!content.trim()) {
+      const validationError = ErrorFactory.createAppError(
+        ERROR_CODES.INVALID_INPUT,
+        'メッセージを入力してください',
+        'low'
+      );
+      setError(validationError);
+      return;
+    }
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -27,47 +38,83 @@ export function useChat() {
     setError(null);
 
     try {
-      const requestBody: ChatRequest = {
-        message: content.trim(),
-        characterId: character.id,
-      };
+      await RetryUtils.withRetry(
+        async () => {
+          const requestBody: ChatRequest = {
+            message: content.trim(),
+            characterId: character.id,
+          };
 
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+          const response = await fetchWithTimeout('/api/chat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+          }, 45000); // 45秒タイムアウト
+
+          const data: ChatResponse = await response.json();
+
+          if (!response.ok) {
+            const apiError = ErrorFactory.createApiError(
+              response.status === 429 ? ERROR_CODES.API_RATE_LIMIT :
+              response.status === 401 ? ERROR_CODES.API_KEY_INVALID :
+              ERROR_CODES.API_INTERNAL_ERROR,
+              response.status,
+              '/api/chat',
+              data.error || `APIエラー (${response.status})`
+            );
+            throw apiError;
+          }
+
+          // レスポンス検証
+          if (!data.response || data.response.trim().length === 0) {
+            throw ErrorFactory.createApiError(
+              ERROR_CODES.API_INTERNAL_ERROR,
+              200,
+              '/api/chat',
+              'AIから空の応答が返されました'
+            );
+          }
+
+          const assistantMessage: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            content: data.response,
+            role: 'assistant',
+            timestamp: new Date(),
+            characterId: character.id,
+          };
+
+          setMessages(prev => [...prev, assistantMessage]);
+          setRetryCount(0); // 成功時にリセット
         },
-        body: JSON.stringify(requestBody),
-      });
-
-      const data: ChatResponse = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'APIエラーが発生しました');
-      }
-
-      const assistantMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        content: data.response,
-        role: 'assistant',
-        timestamp: new Date(),
-        characterId: character.id,
-      };
-
-      setMessages(prev => [...prev, assistantMessage]);
+        3, // 最大3回試行
+        2000, // 2秒から開始
+        (attempt, error) => {
+          setRetryCount(attempt);
+          logError(error, `useChat retry attempt ${attempt}`);
+        }
+      );
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました';
-      setError(errorMessage);
+      const appError = err instanceof Error 
+        ? ErrorFactory.fromFetchError(err, '/api/chat')
+        : err as AppError;
       
-      const errorChatMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        content: `エラー: ${errorMessage}`,
-        role: 'assistant',
-        timestamp: new Date(),
-        characterId: character.id,
-      };
+      setError(appError);
+      logError(appError, 'useChat.sendMessage');
       
-      setMessages(prev => [...prev, errorChatMessage]);
+      // エラーメッセージをチャットに表示（重要度が高い場合のみ）
+      if (appError.severity === 'high' || appError.severity === 'critical') {
+        const errorChatMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          content: `申し訳ありません。${appError.message}`,
+          role: 'assistant',
+          timestamp: new Date(),
+          characterId: character.id,
+        };
+        
+        setMessages(prev => [...prev, errorChatMessage]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -82,12 +129,24 @@ export function useChat() {
     setMessages(prev => prev.filter(msg => msg.id !== messageId));
   }, []);
 
+  const retryLastMessage = useCallback(() => {
+    const lastUserMessage = [...messages].reverse().find(msg => msg.role === 'user');
+    if (lastUserMessage && error) {
+      // 最後のユーザーメッセージを再送信
+      const character = { id: 'unknown' } as VTuberCharacter; // これは改善が必要
+      sendMessage(lastUserMessage.content, character);
+    }
+  }, [messages, error, sendMessage]);
+
   return {
     messages,
     isLoading,
     error,
+    retryCount,
     sendMessage,
     clearMessages,
     removeMessage,
+    retryLastMessage,
+    clearError: () => setError(null),
   };
 }

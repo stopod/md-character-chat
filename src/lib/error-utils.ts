@@ -125,7 +125,7 @@ export class ErrorFactory {
 // 再試行ユーティリティ
 export class RetryUtils {
   static isRetryable(error: AppError): boolean {
-    return RETRYABLE_ERROR_CODES.has(error.code);
+    return RETRYABLE_ERROR_CODES.has(error.code as ErrorCode);
   }
 
   static calculateDelay(attempt: number, baseDelay: number = 1000): number {

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import ErrorBoundary from '@/components/Error/ErrorBoundary';
 
 export const metadata: Metadata = {
   title: 'VTuber AI Chat',
@@ -39,7 +40,9 @@ export default function RootLayout({
           </header>
           
           <main className="flex-1 flex overflow-hidden">
-            {children}
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
           </main>
           
           <footer className="bg-white border-t flex-shrink-0">
