@@ -10,6 +10,10 @@
   
   body {
     @apply h-full bg-gradient-to-br from-blue-50 to-indigo-100 font-sans antialiased;
+    /* パフォーマンス最適化 */
+    transform: translateZ(0);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   #__next {
@@ -97,13 +101,27 @@
   }
 }
 
-/* Character selection hover effects */
+/* Character selection hover effects - GPU加速 */
 .character-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .character-card:hover {
-  transform: translateY(-4px) scale(1.02);
+  transform: translate3d(0, -4px, 0) scale(1.02);
+}
+
+/* パフォーマンス最適化されたアニメーション */
+.optimized-transition {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
 }
 
 /* Gradient text effect */

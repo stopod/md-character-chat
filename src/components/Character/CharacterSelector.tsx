@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { VTuberCharacter } from '@/types/character';
 import { loadCharacters } from '@/data/characters';
 
@@ -25,11 +25,52 @@ export default function CharacterSelector({
     loadData();
   }, []);
 
+  // メモ化されたキャラクターカード
+  const characterCards = useMemo(() => 
+    characters.map((character) => (
+      <div
+        key={character.id}
+        onClick={() => onCharacterSelect(character)}
+        className={`
+          cursor-pointer rounded-xl p-6 transition-all duration-300 transform hover:scale-105
+          ${selectedCharacter?.id === character.id 
+            ? 'ring-4 ring-blue-400 shadow-xl' 
+            : 'hover:shadow-lg'
+          }
+          bg-gradient-to-br ${character.background}
+        `}
+      >
+        <div className="text-center">
+          <div className="text-6xl mb-4">{character.avatar}</div>
+          <h3 className="text-xl font-bold mb-2 text-gray-800">
+            {character.name}
+          </h3>
+          <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+            {character.description}
+          </p>
+          <div className="flex flex-wrap gap-1 justify-center">
+            {character.catchphrase.slice(0, 2).map((phrase, index) => (
+              <span
+                key={index}
+                className="inline-block bg-white bg-opacity-70 text-xs px-2 py-1 rounded-full text-gray-700"
+              >
+                {phrase}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    )), [characters, selectedCharacter, onCharacterSelect]
+  );
+
   if (isLoading) {
     return (
       <div className="w-full max-w-4xl mx-auto p-6">
         <div className="text-center">
-          <div className="text-2xl">読み込み中...</div>
+          <div className="flex items-center justify-center space-x-2">
+            <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+            <div className="text-xl text-gray-700">キャラクター読み込み中...</div>
+          </div>
         </div>
       </div>
     );
@@ -41,40 +82,7 @@ export default function CharacterSelector({
       </h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {characters.map((character) => (
-          <div
-            key={character.id}
-            onClick={() => onCharacterSelect(character)}
-            className={`
-              cursor-pointer rounded-xl p-6 transition-all duration-300 transform hover:scale-105
-              ${selectedCharacter?.id === character.id 
-                ? 'ring-4 ring-blue-400 shadow-xl' 
-                : 'hover:shadow-lg'
-              }
-              bg-gradient-to-br ${character.background}
-            `}
-          >
-            <div className="text-center">
-              <div className="text-6xl mb-4">{character.avatar}</div>
-              <h3 className="text-xl font-bold mb-2 text-gray-800">
-                {character.name}
-              </h3>
-              <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                {character.description}
-              </p>
-              <div className="flex flex-wrap gap-1 justify-center">
-                {character.catchphrase.slice(0, 2).map((phrase, index) => (
-                  <span
-                    key={index}
-                    className="inline-block bg-white bg-opacity-70 text-xs px-2 py-1 rounded-full text-gray-700"
-                  >
-                    {phrase}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))}
+        {characterCards}
       </div>
       
       {selectedCharacter && (

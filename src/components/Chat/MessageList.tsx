@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { ChatMessage } from '@/types/chat';
 import { VTuberCharacter } from '@/types/character';
 import { getCharacterById } from '@/data/characters';
+import MessageItem from './MessageItem';
 
 interface MessageListProps {
   messages: ChatMessage[];
@@ -38,6 +39,32 @@ export default function MessageList({ messages, selectedCharacter }: MessageList
     return () => resizeObserver.disconnect();
   }, [messages]);
 
+  // キャラクターデータのメモ化
+  const characterCache = useMemo(() => {
+    const cache = new Map<string, VTuberCharacter | null>();
+    messages.forEach(message => {
+      if (message.characterId && !cache.has(message.characterId)) {
+        cache.set(message.characterId, getCharacterById(message.characterId) || null);
+      }
+    });
+    return cache;
+  }, [messages]);
+
+  // メッセージアイテムのメモ化
+  const messageItems = useMemo(() => 
+    messages.map((message) => {
+      const character = message.characterId ? characterCache.get(message.characterId) || null : null;
+      return (
+        <MessageItem
+          key={message.id}
+          message={message}
+          character={character}
+        />
+      );
+    }),
+    [messages, characterCache]
+  );
+
   return (
     <div className="flex-1 bg-gray-50 scrollbar-overlay">
       <div className="p-4 space-y-4 min-h-full flex flex-col justify-end">
@@ -55,48 +82,7 @@ export default function MessageList({ messages, selectedCharacter }: MessageList
         
         {messages.length > 0 && (
           <div className="space-y-4">
-      {messages.map((message) => {
-        const character = message.characterId ? getCharacterById(message.characterId) : null;
-        
-        return (
-          <div
-            key={message.id}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`
-                max-w-sm md:max-w-lg lg:max-w-2xl px-4 py-3 rounded-lg shadow-sm
-                ${message.role === 'user' 
-                  ? 'bg-blue-500 text-white' 
-                  : character 
-                    ? `bg-gradient-to-r ${character.background} text-gray-800`
-                    : 'bg-gray-200 text-gray-800'
-                }
-              `}
-            >
-              {message.role === 'assistant' && character && (
-                <div className="flex items-center mb-2">
-                  <span className="text-lg mr-2">{character.avatar}</span>
-                  <span className="font-bold text-sm">{character.name}</span>
-                </div>
-              )}
-              
-              <p className="text-base leading-relaxed whitespace-pre-wrap">
-                {message.content}
-              </p>
-              
-              <div className={`text-xs mt-2 opacity-70 ${
-                message.role === 'user' ? 'text-blue-100' : 'text-gray-600'
-              }`}>
-                {message.timestamp.toLocaleTimeString('ja-JP', { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
-                })}
-              </div>
-            </div>
-          </div>
-        );
-      })}
+            {messageItems}
           </div>
         )}
         

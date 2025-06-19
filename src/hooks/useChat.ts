@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { ChatMessage, ChatRequest, ChatResponse } from '@/types/chat';
 import { VTuberCharacter } from '@/types/character';
 import { AppError, ERROR_CODES } from '@/types/error';
@@ -138,8 +138,11 @@ export function useChat() {
     }
   }, [messages, error, sendMessage]);
 
+  // メッセージ配列のメモ化
+  const memoizedMessages = useMemo(() => messages, [messages]);
+
   return {
-    messages,
+    messages: memoizedMessages,
     isLoading,
     error,
     retryCount,
