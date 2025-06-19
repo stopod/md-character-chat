@@ -1,4 +1,4 @@
-export interface VTuberCharacter {
+export interface ChatCharacter {
   id: string;
   name: string;
   description: string;
@@ -35,3 +35,6 @@ export interface CharacterProfile {
     character: string;
   };
 }
+
+// 後方互換性のためのエイリアス
+export type VTuberCharacter = ChatCharacter;

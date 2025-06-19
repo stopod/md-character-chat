@@ -3,10 +3,10 @@ import './globals.css';
 import ErrorBoundary from '@/components/Error/ErrorBoundary';
 
 export const metadata: Metadata = {
-  title: 'VTuber AI Chat',
-  description: 'VTuber風オリジナルキャラクターとのAIチャットアプリケーション',
-  keywords: ['VTuber', 'AI', 'Chat', 'キャラクター', 'チャット'],
-  authors: [{ name: 'VTuber AI Chat Team' }],
+  title: 'AI Character Chat',
+  description: 'オリジナルキャラクターとのAIチャットアプリケーション',
+  keywords: ['AI', 'Chat', 'Character', 'キャラクター', 'チャット', '会話'],
+  authors: [{ name: 'AI Character Chat Team' }],
   viewport: 'width=device-width, initial-scale=1',
 };
 
@@ -29,7 +29,7 @@ export default function RootLayout({
                 <div className="flex items-center space-x-2">
                   <div className="text-2xl">🎭</div>
                   <h1 className="text-xl font-bold gradient-text">
-                    VTuber AI Chat
+                    AI Character Chat
                   </h1>
                 </div>
                 <div className="text-sm text-gray-600">
@@ -49,8 +49,8 @@ export default function RootLayout({
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
               <div className="text-center text-sm text-gray-600">
                 <p>
-                  このアプリケーションのキャラクターは、実在のVTuberから
-                  インスパイアされたオリジナルキャラクターです。
+                  このアプリケーションのキャラクターは、
+                  オリジナルで作成されたAIキャラクターです。
                 </p>
                 <p className="mt-1">
                   実在の人物・団体とは関係ありません。

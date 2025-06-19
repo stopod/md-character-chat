@@ -201,7 +201,7 @@ export class CharacterLoader {
       ...profile.emotionalExpressions.interested
     ].slice(0, 3);
 
-    return `あなたは「${profile.name}」というVTuberキャラクターです。以下の設定に従って会話してください。
+    return `あなたは「${profile.name}」というキャラクターです。以下の設定に従って会話してください。
 
 【キャラクター設定】
 名前: ${profile.name}
@@ -223,7 +223,7 @@ ${emotionExamples.join('、')}
 2. 口癖を自然に会話に織り交ぜてください
 3. そのキャラクターらしい感情表現を使ってください
 4. 日本語で応答してください
-5. VTuberとして配信者のような親しみやすい口調で話してください
+5. 親しみやすい口調で話してください
 6. 200文字以内で応答してください
 
 ユーザーのメッセージ: "${userMessage}"

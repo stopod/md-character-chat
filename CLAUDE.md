@@ -4,7 +4,7 @@
 
 ## プロジェクト概要
 
-VTuber風オリジナルキャラクターとチャットできるAIチャットアプリケーションです。Next.js 15.3+ + TypeScript、Tailwind CSS、Google Gemini 1.5 Flash APIを統合して開発されています。
+オリジナルキャラクターとチャットできるAIチャットアプリケーションです。Next.js 15.3+ + TypeScript、Tailwind CSS、Google Gemini 1.5 Flash APIを統合して開発されています。
 
 ## 開発コマンド
 
@@ -56,7 +56,7 @@ src/
 ```
 
 ### キャラクターシステム
-アプリケーションには4体のVTuber風オリジナルキャラクターが登場：
+アプリケーションには個性豊かなオリジナルキャラクターが登場：
 - **みこりん**: 元気、関西弁、ゲーム好き (🌸)
 - **ルナ様**: クール、知的、少しツンデレ (🌙)
 - **こいちゃん**: 優しい、癒し系、歌好き (🧜‍♀️)
@@ -71,7 +71,7 @@ src/
 
 ### 型システム
 重要なインターフェース:
-- `VTuberCharacter`: 性格、話し方を含むキャラクター定義
+- `ChatCharacter`: 性格、話し方を含むキャラクター定義
 - `ChatMessage`: role、content、timestampを持つメッセージ構造
 - `ChatRequest/ChatResponse`: API通信用の型
 
@@ -147,6 +147,6 @@ const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 - ユーザー認証やデータ永続化なし
 - APIキーはサーバーサイドでのみ保護
-- VTuberからインスパイアされたオリジナルキャラクター（直接的なコピーではない）
+- オリジナルで作成されたキャラクター設定
 - 個人情報の収集なし
 - インスピレーション元への適切な帰属と免責事項

@@ -40,7 +40,7 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold gradient-text mb-4">
-            Welcome to VTuber AI Chat!
+            AI Character Chat へようこそ！
           </h2>
           <p className="text-gray-600 text-lg">
             お気に入りのキャラクターを選んで、楽しくおしゃべりしましょう！
@@ -70,7 +70,7 @@ export default function Home() {
             <div className="text-3xl mb-2">1️⃣</div>
             <h4 className="font-semibold mb-2">キャラクター選択</h4>
             <p className="text-sm text-gray-600">
-              4体のキャラクターから好きな子を選んでね
+              個性豊かなキャラクターから選択
             </p>
           </div>
           <div className="p-4">
